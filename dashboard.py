@@ -362,13 +362,13 @@ elif page == "🤖 Model Performance":
     report_df = pd.DataFrame(report_data)
     st.dataframe(report_df, use_container_width=True)
     
-    # Feature Importance (if models loaded)
-    if rf_model is not None:
+    # ✅ Feature Importance (Gradient Boosting)
+    if gb_model is not None:
         st.markdown("---")
-        st.subheader("🎯 Feature Importance (Random Forest)")
+        st.subheader("🎯 Feature Importance (Gradient Boosting)")
         
         features = ['Registration_State', 'Vehicle_Type', 'Fine_Amount', 'Driver_Age', 'month', 'dayofweek']
-        importances = rf_model.feature_importances_
+        importances = gb_model.feature_importances_
         
         fi_df = pd.DataFrame({
             'Feature': features,
