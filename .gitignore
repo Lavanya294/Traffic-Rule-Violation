@@ -51,3 +51,6 @@ traffic_model_output_Court_Appearance_Re*/
 # Temporary files
 *.tmp
 *.bak
+
+model_random_forest.joblib
+model_gradient_boosting.joblib
