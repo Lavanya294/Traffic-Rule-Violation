@@ -52,5 +52,9 @@ traffic_model_output_Court_Appearance_Re*/
 *.tmp
 *.bak
 
+# Exclude large Random Forest models (GB is better anyway!)
 model_random_forest.joblib
+model_random_forest_tuned.joblib
+
+# Exclude baseline GB model (keep only tuned)
 model_gradient_boosting.joblib

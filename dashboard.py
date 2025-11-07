@@ -81,21 +81,19 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    """Load trained models"""
     try:
-        rf_model = joblib.load("model_random_forest_tuned.joblib")
         gb_model = joblib.load("model_gradient_boosting_tuned.joblib")
         le_target = joblib.load("label_encoder_target.joblib")
         label_encoders = joblib.load("label_encoders.joblib")
         imputer = joblib.load("imputer.joblib")
-        return rf_model, gb_model, le_target, label_encoders, imputer
+        return gb_model, le_target, label_encoders, imputer
     except Exception as e:
-        st.warning(f"Models not found. Please train models first: {e}")
-        return None, None, None, None, None
+        st.warning(f"Models not found: {e}")
+        return None, None, None, None
 
 # Load data
 df = load_data()
-rf_model, gb_model, le_target, label_encoders, imputer = load_models()
+gb_model, le_target, label_encoders, imputer = load_models()
 
 # =========================================================
 # Sidebar Navigation
@@ -407,13 +405,12 @@ elif page == "🤖 Model Performance":
 elif page == "🔮 Make Prediction":
     st.markdown('<p class="main-header">🔮 Traffic Violation Predictor</p>', unsafe_allow_html=True)
     
-    if all([rf_model, gb_model, le_target, label_encoders, imputer]):
+    if all([gb_model, le_target, label_encoders, imputer]):
         st.info("Fill in the details below to predict the violation type")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            # Get unique values from dataset for dropdowns
             registration_state = st.selectbox(
                 "Registration State",
                 options=sorted(df['Registration_State'].unique()) if df is not None else ['State1']
@@ -481,34 +478,19 @@ elif page == "🔮 Make Prediction":
                         else:
                             input_data[col] = 0  # Unknown category
                 
-                # Impute
+                # Impute missing values
                 input_encoded = imputer.transform(input_data)
                 
-                # Predict with both models
-                rf_pred = rf_model.predict(input_encoded)[0]
+                # Predict using only Gradient Boosting model
                 gb_pred = gb_model.predict(input_encoded)[0]
-                
-                rf_pred_label = le_target.inverse_transform([rf_pred])[0]
                 gb_pred_label = le_target.inverse_transform([gb_pred])[0]
-                
-                # Get prediction probabilities
-                rf_proba = rf_model.predict_proba(input_encoded)[0]
                 gb_proba = gb_model.predict_proba(input_encoded)[0]
                 
                 # Display results
                 st.success("✅ Prediction Complete!")
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.subheader("🌲 Random Forest Prediction")
-                    st.metric("Predicted Violation", rf_pred_label)
-                    st.metric("Confidence", f"{max(rf_proba)*100:.1f}%")
-                
-                with col2:
-                    st.subheader("🚀 Gradient Boosting Prediction")
-                    st.metric("Predicted Violation", gb_pred_label)
-                    st.metric("Confidence", f"{max(gb_proba)*100:.1f}%")
+                st.subheader("🚀 Gradient Boosting Prediction")
+                st.metric("Predicted Violation", gb_pred_label)
+                st.metric("Confidence", f"{max(gb_proba)*100:.1f}%")
                 
                 # Show probability distribution
                 st.markdown("---")
@@ -535,7 +517,6 @@ elif page == "🔮 Make Prediction":
         st.error("⚠️ Models not loaded. Please ensure all model files are in the directory and train the models first.")
         st.info("""
         Required files:
-        - model_random_forest_tuned.joblib
         - model_gradient_boosting_tuned.joblib
         - label_encoder_target.joblib
         - label_encoders.joblib
