@@ -1,0 +1,14 @@
+# Core Data Science Libraries (for training script - main.py)
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+joblib
+
+# Dashboard Libraries (for dashboard.py)
+streamlit
+plotly
+
+# Note: This will use your existing versions. Only new packages will be installed.
+# If you need specific versions later (for deployment), you can pin them.
